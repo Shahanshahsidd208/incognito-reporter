@@ -1,12 +1,21 @@
+/* General styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+main {
+    flex: 1;
+    display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    flex-direction: column;
 }
 
 .container {
@@ -14,18 +23,30 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
+    max-width: 600px;
     width: 100%;
     text-align: center;
+    margin-top: 80px; /* Adjusted to account for fixed header */
+    margin-bottom: 20px;
 }
 
-h1 {
-    color: #333;
+.header h1 {
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.p1 {
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.container h1 {
+    color: #8f0404;
     margin-bottom: 20px;
 }
 
 p {
-    color: #555;
+    color: #3a3a3a;
     margin-bottom: 20px;
 }
 
@@ -39,6 +60,7 @@ label {
 .phone-input {
     display: flex;
     align-items: center;
+    margin-bottom: 15px;
 }
 
 .phone-input input[type="text"] {
@@ -46,6 +68,7 @@ label {
     border-radius: 4px;
     padding: 10px;
     margin-right: 5px;
+    width: calc(100% - 55px);
 }
 
 .phone-input input[readonly] {
@@ -55,14 +78,10 @@ label {
     margin-right: 5px;
 }
 
-.phone-input input[name="phone_number"] {
-    flex: 1;
-}
-
 button {
     margin-top: 10px;
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #8f0404;
     color: white;
     border: none;
     border-radius: 4px;
@@ -71,12 +90,147 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #6f0101;
 }
 
+/* Navbar styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #8f0404;
+    padding: 10px 20px; /* Added padding for both ends */
+    color: #fff;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    height: 60px;
+    box-sizing: border-box; /* Ensure padding is included in element's total width */
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo img {
+    height: 40px; /* Reduced height for better scaling */
+    width: auto;
+}
+
+.navbar .logo p {
+    margin-left: 10px;
+    font-size: 18px;
+    white-space: nowrap;
+}
+
+.navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar ul li {
+    margin-left: 20px;
+}
+
+.navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.navbar ul li a:hover {
+    color: #c4c4c4; /* Change color on hover */
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.hamburger .bar {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    margin: 3px 0;
+}
+
+/* Header styles */
+.header {
+    background-color: #936c01;
+    color: #fffafa;
+    padding: 10px 0;
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    top: 60px;
+    z-index: 999;
+}
+
+/* Footer styles */
+footer {
+    background-color: #2e2e2e;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+    margin-top: auto;
+}
+
+footer .footer-content p {
+    color: white;
+    margin: 5px 0;
+}
+
+/* Responsive styles */
 @media (max-width: 600px) {
+    .navbar {
+        padding: 10px; /* Adjust padding for smaller screens */
+    }
+
+    .navbar .logo {
+        height: 30px;
+    }
+
+    .navbar .logo p {
+        font-size: 11px; /* Smaller font size for small screens */
+    }
+
+    .navbar .nav-links {
+        font-size: x-small;
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center; /* Center align the nav links */
+    }
+
+    .navbar .nav-links.active {
+        display: flex;
+    }
+
+    .navbar ul {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .navbar ul li {
+        margin-left: 0;
+        margin-top: 5px;  /* changes here */
+    }
+
     .container {
         padding: 15px;
+        margin-top: 130px;
     }
 
     h1 {
@@ -92,5 +246,62 @@ button:hover {
         margin-top: 10px;
         padding: 15px;
         font-size: 18px;
+    }
+
+    .header {
+        padding: 10px 0;
+        top: 60px;
+    }
+
+    footer {
+        padding: 15px 0;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 600px;
+    }
+}
+
+/* Custom styles for forms */
+.button-group {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.button-group button {
+    flex: 1;
+    margin: 0 5px;
+}
+
+#anonymousForm,
+#victimForm {
+    margin-top: 20px;
+}
+
+#victimForm label,
+#victimForm input,
+#victimForm button {
+    display: block;
+    width: calc(100% - 20px);
+    margin: 10px auto;
+}
+
+#victimForm .crime-type {
+    margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+    #victimForm label,
+    #victimForm input,
+    #victimForm button {
+        width: 100%;
+        margin: 10px 0;
     }
 }
