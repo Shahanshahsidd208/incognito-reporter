@@ -7,21 +7,105 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Report a Crime</h1>
-        <p>Please enter your phone number and allow location access to report a crime.</p>
-        <form id="scanForm">
-            <label for="phone_number">Phone Number:</label>
-            <div class="phone-input">
-                <input type="text" value="+91" readonly>
-                <input type="text" id="phone_number" name="phone_number" required pattern="\d{10}" title="Enter a 10-digit phone number">
-            </div>
-            <button type="submit">Submit</button>
-        </form>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="logoksp.png" alt="Hubli Dharwad Police Logo">
+            <p class="p1">Hubballi-Dharwad City Police</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="./">Home</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Contact Us</a></li>
+        </ul>
+        <div class="hamburger" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>Report the Crime, trust us it is anonymous</h1>
     </div>
+
+    <main>
+        <div class="container">
+            <h1>Report a Crime</h1>
+            <div class="button-group">
+                <button id="anonymousBtn" onclick="showAnonymousForm()">Anonymous Reporter</button>
+                <button id="victimBtn" onclick="showVictimForm()">Victim Itself</button>
+            </div>
+            <div id="anonymousForm">
+                <form id="scanForm" action="http://127.0.0.1:5000/scan" method="POST">
+                    <label for="phone_number">Phone Number:</label>
+                    <div class="phone-input">
+                        <input type="text" value="+91" readonly>
+                        <input type="text" id="phone_number" name="phone_number" required pattern="\d{10}" title="Enter a 10-digit phone number">
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+            <div id="victimForm" style="display: none;">
+                <form id="victimScanForm" action="http://127.0.0.1:5000/scan" method="POST">
+                    <label for="victim_name">Name:</label>
+                    <input type="text" id="victim_name" name="victim_name" placeholder="Enter your full name" required>
+                    <label for="victim_phone_number">Phone Number:</label>
+                    <div class="phone-input">
+                        <input type="text" value="+91" readonly>
+                        <input type="text" id="victim_phone_number" name="victim_phone_number" required pattern="\d{10}" title="Enter a 10-digit phone number">
+                    </div>
+                    <label>Crime Type:</label>
+                    <div class="crime-type">
+                        <input type="radio" id="heinous" name="crime_type" value="heinous" required>
+                        <label for="heinous">Heinous</label>
+                        <input type="radio" id="non_heinous" name="crime_type" value="non-heinous" required>
+                        <label for="non_heinous">Non-Heinous</label>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Hubli Dharwad Police Department. All rights reserved.</p>
+            <p>For emergencies, call: 100 | For non-emergencies, contact: 080-12345678</p>
+        </div>
+    </footer>
 
     <script>
         let locationData = null;
+        let formSubmitted = false;
+
+        function showAnonymousForm() {
+            document.getElementById('anonymousForm').style.display = 'block';
+            document.getElementById('victimForm').style.display = 'none';
+            document.getElementById('anonymousBtn').classList.add('active');
+            document.getElementById('victimBtn').classList.remove('active');
+        }
+
+        function showVictimForm() {
+            document.getElementById('anonymousForm').style.display = 'none';
+            document.getElementById('victimForm').style.display = 'block';
+            document.getElementById('anonymousBtn').classList.remove('active');
+            document.getElementById('victimBtn').classList.add('active');
+        }
+
+        // Function to disable form inputs during submission
+        function disableFormInputs(form) {
+            Array.from(form.elements).forEach(element => element.disabled = true);
+        }
+
+        // Function to enable form inputs after submission
+        function enableFormInputs(form) {
+            Array.from(form.elements).forEach(element => element.disabled = false);
+        }
+
+        // Function to clear form inputs
+        function clearFormInputs(form) {
+            form.reset();
+        }
 
         // Request location permission as soon as the page loads
         window.onload = function() {
@@ -38,47 +122,116 @@
 
         // Set a timeout to send location data automatically after 60 seconds
         const timeoutId = setTimeout(() => {
-            if (locationData && !document.getElementById('phone_number').value) {
+            if (locationData && !document.getElementById('phone_number').value && !formSubmitted) {
                 sendLocation();
             }
         }, 60000);
 
+        // Handle form submission for anonymous reporter
         document.getElementById('scanForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const phoneNumber = "+91" + document.getElementById('phone_number').value;
+            const form = e.target;
 
+            if (formSubmitted) return; // Prevent multiple submissions
+
+            const phoneNumber = "+91" + document.getElementById('phone_number').value;
             if (locationData) {
-                sendLocation(phoneNumber);
+                formSubmitted = true; // Mark form as submitted
+                disableFormInputs(form); // Disable form inputs during submission
+                sendLocation(phoneNumber, form);
             } else {
                 alert('Unable to get location. Please try again.');
             }
         });
 
-        function sendLocation(phoneNumber = 'Unknown') {
-            fetch('http://localhost:5000/scan', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `phone_number=${phoneNumber}&location=${locationData}`
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    alert('Crime reported successfully!');
-                } else {
-                    alert('Error reporting crime: ' + data.error);
-                }
-            })
-            .catch(error => {
-                alert('Error sending data: ' + error.message);
-            });
+        // Handle form submission for victim itself
+        document.getElementById('victimScanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+
+            if (formSubmitted) return; // Prevent multiple submissions
+
+            const victimName = document.getElementById('victim_name').value;
+            const victimPhoneNumber = "+91" + document.getElementById('victim_phone_number').value;
+            const crimeType = document.querySelector('input[name="crime_type"]:checked').value;
+            if (locationData) {
+                formSubmitted = true; // Mark form as submitted
+                disableFormInputs(form); // Disable form inputs during submission
+                sendLocation({ victimName, victimPhoneNumber, crimeType }, form);
+            } else {
+                alert('Unable to get location. Please try again.');
+            }
+        });
+
+       // Function to send location data
+function sendLocation(data, form) {
+    let body = "";
+    let googleMapsLink = `https://www.google.com/maps?q=${locationData}`;
+    
+    if (typeof data === "string") {
+        body = `phone_number=${data}&location=${locationData}&google_maps_link=${googleMapsLink}`;
+    } else {
+        body = `victim_name=${data.victimName}&victim_phone_number=${data.victimPhoneNumber}&crime_type=${data.crimeType}&location=${locationData}&google_maps_link=${googleMapsLink}`;
+    }
+
+    fetch('http://127.0.0.1:5000/scan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
         }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert('Crime reported successfully!');
+            if (data.google_maps_link) {
+                sendGoogleMapsLink(data.google_maps_link);
+            }
+        } else {
+            alert('Error reporting crime: ' + data.error);
+        }
+        clearFormInputs(form); // Clear form inputs
+        enableFormInputs(form); // Enable form inputs after submission
+        formSubmitted = false; // Reset form submitted flag
+        location.reload(); // Reload page after submission
+    })
+    .catch(error => {
+        alert('Error sending data: ' + error.message);
+        enableFormInputs(form); // Enable form inputs after submission
+        formSubmitted = false; // Reset form submitted flag
+    });
+}
+
+// Function to send Google Maps link to phone number
+function sendGoogleMapsLink(link) {
+    const phoneNumber = "+91" + document.getElementById('phone_number').value;
+    fetch(`http://127.0.0.1:5000/send-google-maps-link?phone_number=${phoneNumber}&link=${encodeURIComponent(link)}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to send Google Maps link');
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Error sending Google Maps link:', error);
+    });
+}
+
+
+        // Function to toggle the menu
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+        }
+
+        // Initialize default form view
+        showAnonymousForm();
     </script>
 </body>
 </html>
